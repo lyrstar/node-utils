@@ -1,0 +1,49 @@
+{
+  "name": "@lyrstar/node-utils",
+  "version": "1.1.0",
+  "description": "Node.js 常用工具函数库",
+  "type": "module",
+  "main": "index.js",
+  "module": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./base64": "./src/base64.js",
+    "./crypto": "./src/crypto.js",
+    "./string": "./src/string.js",
+    "./net": "./src/net.js",
+    "./date": "./src/date.js",
+    "./file": "./src/file.js",
+    "./token": "./src/token.js"
+  },
+  "files": [
+    "src/",
+    "index.js"
+  ],
+  "scripts": {
+    "test": "node --experimental-vm-modules node_modules/.bin/jest"
+  },
+  "keywords": [
+    "utils",
+    "base64",
+    "md5",
+    "crypto",
+    "date",
+    "ip",
+    "string",
+    "token",
+    "file"
+  ],
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lyrstar/node-utils.git"
+  },
+  "author": "lyrstar",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lyrstar/node-utils/issues"
+  },
+  "homepage": "https://github.com/lyrstar/node-utils#readme"
+}
