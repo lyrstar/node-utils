@@ -12,3 +12,4 @@ export {
     mkdirs, readFile, writeFile, appendFile, readDir, readDirSync, readDirs, readDirsSync, isDirectory, exists
 } from './src/file.js';
 export {createToken} from './src/token.js';
+export {authentication} from './src/filter.js';
