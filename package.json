@@ -1,6 +1,6 @@
 {
   "name": "@lyrstar/node-utils",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Node.js 常用工具函数库",
   "type": "module",
   "main": "index.js",

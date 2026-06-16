@@ -138,8 +138,8 @@ const getSignBody2 = (ctx) => {
 }
 
 /** 算法：sign = md5( md5(signBody + timestamp) + appSecret ) */
-const getSign = (ctx, appSecret) => md5(md5(getSignBody(ctx) + ctx.headers.timestamp) + appSecret);
-const getSign2 = (ctx, appSecret) => md5(md5(getSignBody2(ctx) + ctx.headers.timestamp) + appSecret);
+export const getSign = (ctx, appSecret) => md5(md5(getSignBody(ctx) + ctx.headers.timestamp) + appSecret);
+export const getSign2 = (ctx, appSecret) => md5(md5(getSignBody2(ctx) + ctx.headers.timestamp) + appSecret);
 
 /** 校验签名（v1），失败时打印调试日志并写入错误响应 */
 const checkSign = (ctx, appSecret) => {

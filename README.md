@@ -13,7 +13,7 @@ npm install @lyrstar/node-utils
 ### 全量导入
 
 ```js
-import {md5, enBase64, formatDate, createToken, KoaAuthentication, KoaOMService, KoaLog} from '@lyrstar/node-utils';
+import {md5, enBase64, formatDate, createToken, KoaAuthentication, KoaOMService, KoaLog, getSign, getSign2} from '@lyrstar/node-utils';
 ```
 
 ### 按模块导入
@@ -37,7 +37,7 @@ import {
     exists
 } from '@lyrstar/node-utils/file';
 import {createToken} from '@lyrstar/node-utils/token';
-import {KoaAuthentication, KoaOMService, KoaLog} from '@lyrstar/node-utils/filter';
+import {KoaAuthentication, KoaOMService, KoaLog, getSign, getSign2} from '@lyrstar/node-utils/filter';
 ```
 
 ---
@@ -468,6 +468,50 @@ Koa 请求/响应日志中间件（柯里化）。
 import {KoaLog} from '@lyrstar/node-utils/filter';
 
 app.use(KoaLog(5000));
+```
+
+---
+
+#### `getSign(ctx, appSecret)`
+
+计算 v1 签名（各参数值直接 `String()` 后拼接）。
+
+算法：`sign = md5( md5(signBody + timestamp) + appSecret )`
+
+| 参数        | 类型     | 说明              |
+|-----------|--------|-----------------|
+| ctx       | object | Koa Context 对象  |
+| appSecret | string | 应用密钥            |
+
+**返回值：** `string` — MD5 签名字符串
+
+```js
+import {getSign} from '@lyrstar/node-utils/filter';
+
+// 在 Koa 中间件内使用
+const sign = getSign(ctx, 'mySecret');
+```
+
+---
+
+#### `getSign2(ctx, appSecret)`
+
+计算 v2 签名（object 类型值使用 `JSON.stringify()`，其余 `String()`，保留嵌套结构）。
+
+算法：`sign = md5( md5(signBody + timestamp) + appSecret )`
+
+| 参数        | 类型     | 说明              |
+|-----------|--------|-----------------|
+| ctx       | object | Koa Context 对象  |
+| appSecret | string | 应用密钥            |
+
+**返回值：** `string` — MD5 签名字符串
+
+```js
+import {getSign2} from '@lyrstar/node-utils/filter';
+
+// 在 Koa 中间件内使用
+const sign = getSign2(ctx, 'mySecret');
 ```
 
 ---

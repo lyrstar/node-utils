@@ -12,4 +12,4 @@ export {
     mkdirs, readFile, writeFile, appendFile, readDir, readDirSync, readDirs, readDirsSync, isDirectory, exists
 } from './src/file.js';
 export {createToken} from './src/token.js';
-export {KoaAuthentication, KoaOMService, KoaLog} from './src/filter.js';
+export {KoaAuthentication, KoaOMService, KoaLog, getSign, getSign2} from './src/filter.js';
