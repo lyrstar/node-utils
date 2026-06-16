@@ -13,7 +13,7 @@ npm install @lyrstar/node-utils
 ### 全量导入
 
 ```js
-import {md5, enBase64, formatDate, createToken, authentication} from '@lyrstar/node-utils';
+import {md5, enBase64, formatDate, createToken, KoaAuthentication, KoaOMService, KoaLog} from '@lyrstar/node-utils';
 ```
 
 ### 按模块导入
@@ -37,7 +37,7 @@ import {
     exists
 } from '@lyrstar/node-utils/file';
 import {createToken} from '@lyrstar/node-utils/token';
-import {authentication} from '@lyrstar/node-utils/filter';
+import {KoaAuthentication, KoaOMService, KoaLog} from '@lyrstar/node-utils/filter';
 ```
 
 ---
@@ -378,64 +378,96 @@ createToken(); // 'lrz8k4f2a8b'
 
 ### Filter (`@lyrstar/node-utils/filter`)
 
-#### `authentication(ctx, next, options)`
+#### `KoaAuthentication(options)`
 
-Koa 鉴权中间件，依次校验请求头参数、AppId、时间戳及签名。
+Koa 鉴权中间件（柯里化），依次校验请求头参数、AppId、时间戳及签名。
 
-**签名算法（v1）**
+**签名算法**
 
-```
-sign = md5( md5(queryValues + bodyValues + timestamp) + appSecret )
-```
+| 版本 | 规则 |
+|----|------|
+| v1 | 各参数值 `String()` 后拼接 |
+| v2 | object 类型值 `JSON.stringify()`，其余 `String()` |
 
-**签名算法（v2，对象类型字段做 JSON.stringify）**
-
-```
-sign = md5( md5(JSON.stringify(queryValues) + JSON.stringify(bodyValues) + timestamp) + appSecret )
-```
+两版本均使用：`sign = md5( md5(signBody + timestamp) + appSecret )`
 
 **请求头必填字段：**
 
-| 字段        | 说明              |
-|-----------|-----------------|
-| appid     | 应用 ID           |
-| timestamp | 时间戳（毫秒），与服务器偏差不超过 10 分钟 |
-| sign      | 签名字符串           |
+| 字段        | 说明                          |
+|-----------|-----------------------------|
+| appid     | 应用 ID                       |
+| timestamp | 时间戳（毫秒），与服务器偏差不超过 10 分钟     |
+| sign      | 签名字符串                       |
 
 **options 参数：**
 
-| 参数          | 类型      | 默认值 | 说明                            |
-|-------------|---------|-----|-------------------------------|
-| NODE_ENV    | string  | —   | 运行环境，非 `'pro'` 时 appid 为 `'appId'` 可直接放行 |
-| auth        | boolean | —   | `false` 时跳过鉴权直接放行              |
-| APPS        | object  | —   | `{ [appId]: { appSecret } }` 映射表 |
-| version     | number  | `1` | 签名算法版本，`1` 或 `2`              |
+| 参数              | 类型      | 默认值 | 说明                                           |
+|-----------------|---------|-----|----------------------------------------------|
+| NODE_ENV        | string  | —   | 运行环境，非 `'pro'` 时 appid 为 `'appId'` 可直接放行    |
+| auth            | boolean | —   | `false` 时跳过鉴权直接放行                            |
+| APPS            | object  | —   | `{ [appId]: { appSecret } }` 映射表             |
+| version         | number  | `1` | 签名算法版本，`1` 或 `2`                             |
 
 **错误响应：**
 
-| 状态码 | 原因       |
-|-----|----------|
+| 状态码 | 原因        |
+|-----|-----------|
 | 421 | 请求头缺少必填参数 |
 | 422 | 时间戳超出允许范围 |
-| 423 | 签名错误     |
-| 500 | AppId 未注册 |
+| 423 | 签名错误      |
+| 500 | AppId 未注册  |
 
 ```js
 import Koa from 'koa';
-import {authentication} from '@lyrstar/node-utils/filter';
+import {KoaAuthentication} from '@lyrstar/node-utils/filter';
 
 const app = new Koa();
+const APPS = { myAppId: { appSecret: 'mySecret' } };
 
-const APPS = {
-    myAppId: { appSecret: 'mySecret' }
-};
-
-app.use((ctx, next) => authentication(ctx, next, {
+app.use(KoaAuthentication({
     NODE_ENV: process.env.NODE_ENV,
     auth: true,
     APPS,
     version: 2
 }));
+```
+
+---
+
+#### `KoaOMService(baseurl)`
+
+Koa 跨域 + URL 前缀剥离中间件（柯里化）。
+- 自动设置 `Access-Control-Allow-*` 响应头
+- 自动剥离 URL 中的 `baseurl` 前缀
+- `OPTIONS` / `HEAD` 请求直接返回 200，不进入后续中间件
+
+| 参数      | 类型     | 说明                  |
+|---------|--------|---------------------|
+| baseurl | string | 需要从请求路径中剥离的 URL 前缀  |
+
+```js
+import {KoaOMService} from '@lyrstar/node-utils/filter';
+
+app.use(KoaOMService('/api/v1'));
+```
+
+---
+
+#### `KoaLog(maxLength?)`
+
+Koa 请求/响应日志中间件（柯里化）。
+- 请求进入时打印方法、URL、请求头、query、body
+- 响应返回后打印状态码、耗时、响应 body
+- 超出 `maxLength` 的 body 自动截断并标注实际长度
+
+| 参数        | 类型     | 默认值    | 说明             |
+|-----------|--------|--------|----------------|
+| maxLength | number | `3000` | body 最大输出字符数   |
+
+```js
+import {KoaLog} from '@lyrstar/node-utils/filter';
+
+app.use(KoaLog(5000));
 ```
 
 ---
