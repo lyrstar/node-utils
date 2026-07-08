@@ -55,6 +55,8 @@ export const KoaAuthentication = ({NODE_ENV, auth, APPS, version = 1}) => {
  * @returns {Function} Koa 中间件
  */
 export const KoaOMService = (baseurl) => {
+    if (!baseurl) throw Error('no baseurl');
+    if (!baseurl.startsWith('/')) baseurl = '/' + baseurl;
     return async (ctx, next) => {
         ctx.set('Access-Control-Allow-Origin', '*');
         ctx.set('Access-Control-Allow-Methods', '*');
